@@ -36,9 +36,6 @@ namespace ApiSpec {
                 {
                     string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
                     enumName = parts[2];
-                    if (enumName == "VkShaderStageFlagBits") {
-                        Console.WriteLine("adsf");
-                    }
                 }
                 {
                     string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
@@ -106,7 +103,12 @@ namespace ApiSpec {
                     builder.Append(first); builder.Append(rest);
                 }
 
-                return builder.ToString();
+                string str = builder.ToString();
+                if (str.ToLower().EndsWith("khr")) {
+                    str = str.Substring(0, str.Length - "khr".Length) + "KHR";
+                }
+
+                return str;
             }
         }
 
