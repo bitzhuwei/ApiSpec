@@ -36,6 +36,9 @@ namespace ApiSpec {
                 {
                     string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
                     enumName = parts[2];
+                    if (enumName == "VkShaderStageFlagBits") {
+                        Console.WriteLine("adsf");
+                    }
                 }
                 {
                     string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
@@ -48,17 +51,17 @@ namespace ApiSpec {
                         string[] parts = lines[i].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
                         string head = parts[0], number = parts[2];
                         string newHead = Simplify(head, enumName);
-                        if (!char.IsNumber(number[0])) {
+                        if (char.IsNumber(number[0]) || number[0] == '-') {
+                            if (char.IsNumber(newHead[0])) { newHead = "_" + newHead; }
+                            lines[i] = string.Format("    {0} = {1},", newHead, number);
+                        }
+                        else {
                             string newNumber = Simplify(number, enumName);
                             if (char.IsNumber(newHead[0])) { newHead = "_" + newHead; }
                             if (char.IsNumber(newNumber[0])) { newNumber = "_" + newNumber; }
                             lines[i] = string.Format("    {0}{1} = {2},",
                                 newHead == newNumber ? "// [Duplicated] " : "",
                                 newHead, newNumber);
-                        }
-                        else {
-                            if (char.IsNumber(newHead[0])) { newHead = "_" + newHead; }
-                            lines[i] = string.Format("    {0} = {1},", newHead, number);
                         }
                     }
                 }
@@ -83,7 +86,15 @@ namespace ApiSpec {
                     left++; right++;
                 }
 
-                string[] parts = itemName.Substring(left).Split('_', StringSplitOptions.RemoveEmptyEntries);
+                int lastUnderline = left;
+                for (int i = left; i >= 0; i--) {
+                    if (itemName[i] == '_') {
+                        lastUnderline = i;
+                        break;
+                    }
+                }
+
+                string[] parts = itemName.Substring(lastUnderline + 1).Split('_', StringSplitOptions.RemoveEmptyEntries);
                 var builder = new StringBuilder();
                 for (int i = 0; i < parts.Length; i++) {
                     if (((i == parts.Length - 2)
