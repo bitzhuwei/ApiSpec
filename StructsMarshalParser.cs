@@ -78,25 +78,25 @@ namespace ApiSpec {
                     if (definitionLines[1] != string.Empty) {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
-                            sw.WriteLine($"    private static readonly {definitionLines[0]} empty =");
-                            if (definitionLines[1] == "0") {
-                                sw.WriteLine($"        new {definitionLines[0]}() {leftBrace} sType = 0 {rightBrace};");
-                            }
-                            else {
-                                sw.WriteLine($"        new {definitionLines[0]}() {leftBrace} sType = VkStructureType.{definitionLines[1]} {rightBrace};");
-                            }
                             sw.WriteLine($"    public static {definitionLines[0]}* Alloc() {leftBrace}");
                             {
-                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(sizeof({definitionLines[0]}));");
-                                sw.WriteLine($"        *info = empty;");
+                                sw.WriteLine($"        int size = sizeof({definitionLines[0]});");
+                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size);");
+                                sw.WriteLine($"        Marshal.Copy(Vk.zeros, 0, (IntPtr)info, size);");
+                                if (definitionLines[1] != "0") {
+                                    sw.WriteLine($"        info->sType = VkStructureType.{definitionLines[1]};");
+                                }
+                                else {
+                                    sw.WriteLine($"        info->sType = 0;");
+                                }
                                 sw.WriteLine();
-                                sw.WriteLine($"        return info;");
                                 if (definitionLines[1] == "0"
                                     && (definitionLines[0] != "VkBaseInStructure")
                                     && (definitionLines[0] != "VkBaseOutStructure")
                                     ) {
                                     sw.WriteLine($"        throw new Exception(\"No suitable sType found!\");");
                                 }
+                                sw.WriteLine($"        return info;");
                             }
                             sw.WriteLine($"    {rightBrace}");
                         }
@@ -106,12 +106,11 @@ namespace ApiSpec {
                     else {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
-                            sw.WriteLine($"    private static readonly {definitionLines[0]} empty =");
-                            sw.WriteLine($"        new {definitionLines[0]}();");
                             sw.WriteLine($"    public static {definitionLines[0]}* Alloc() {leftBrace}");
                             {
-                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(sizeof({definitionLines[0]}));");
-                                sw.WriteLine($"        *info = empty;");
+                                sw.WriteLine($"        int size = sizeof({definitionLines[0]});");
+                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size);");
+                                sw.WriteLine($"        Marshal.Copy(Vk.zeros, 0, (IntPtr)info, size);");
                                 sw.WriteLine();
                                 sw.WriteLine($"        return info;");
                             }
