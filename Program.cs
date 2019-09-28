@@ -26,6 +26,7 @@ namespace ApiSpec {
             //StructsParser.Testh4();
             //StructsParser.h4Counts();
             StructsParser.DumpStructs();
+            StructsMarshalParser.DumpStructs();
 
             //CommandsParser.Testh4();
             //CommandsParser.h4Counts();
