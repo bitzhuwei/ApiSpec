@@ -78,7 +78,16 @@ namespace ApiSpec {
                     if (definitionLines[1] != string.Empty) {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
-                            sw.WriteLine($"    public static {definitionLines[0]}* Alloc() {leftBrace}");
+                            sw.WriteLine($"    /// <summary>");
+                            sw.WriteLine($"    /// Alloc an instance of <see cref=\"{definitionLines[0]}\"/> in unmnaged memory.");
+                            if (definitionLines[1] != "0") {
+                                sw.WriteLine($"    /// <para>The 'sType' member is already set up.</para>");
+                            }
+                            else {
+                                sw.WriteLine($"    /// <para>No 'sType' member exists in this struct.</para>");
+                            }
+                            sw.WriteLine($"    /// </summary>");
+                            sw.WriteLine($"    /// <returns>A pointer to the instance of <see cref=\"{definitionLines[0]}\"/>.</returns>");
                             {
                                 sw.WriteLine($"        int size = sizeof({definitionLines[0]});");
                                 sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size);");
