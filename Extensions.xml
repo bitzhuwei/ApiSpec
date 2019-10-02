@@ -1,6 +1,4 @@
 <root>
-<li><a href="#Vulkan Extensions"></a>
-<ul class="sectlevel2">
 <li><a href="#_vk_khr_16bit_storage3">VK_KHR_16bit_storage(3)</a></li>
 <li><a href="#_vk_khr_8bit_storage3">VK_KHR_8bit_storage(3)</a></li>
 <li><a href="#_vk_khr_android_surface3">VK_KHR_android_surface(3)</a></li>
@@ -167,5 +165,4 @@
 <li><a href="#_vk_nv_viewport_array23">VK_NV_viewport_array2(3)</a></li>
 <li><a href="#_vk_nv_viewport_swizzle3">VK_NV_viewport_swizzle(3)</a></li>
 <li><a href="#_vk_nv_win32_keyed_mutex3">VK_NV_win32_keyed_mutex(3)</a></li>
-</li>
 </root>

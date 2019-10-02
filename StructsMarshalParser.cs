@@ -63,7 +63,7 @@ namespace ApiSpec {
             }
         }
 
-        public static void DumpStructs() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<StructDefinition>(); bool inside = false;
             TraverseDefinitions(root, lstDefinition, ref inside);
@@ -79,25 +79,20 @@ namespace ApiSpec {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
                             sw.WriteLine($"    /// <summary>");
-                            sw.WriteLine($"    /// Alloc an instance of <see cref=\"{definitionLines[0]}\"/> in unmnaged memory.");
-                            if (definitionLines[1] != "0") {
-                                sw.WriteLine($"    /// <para>The 'sType' member is already set up.</para>");
-                            }
-                            else {
-                                sw.WriteLine($"    /// <para>No 'sType' member exists in this struct.</para>");
-                            }
+                            sw.WriteLine($"    /// Allocate instances of <see cref=\"{definitionLines[0]}\"/> in unmanaged memory.");
+                            sw.WriteLine($"    /// <para>The 'sType' member is already set up.</para>");
                             sw.WriteLine($"    /// </summary>");
+                            sw.WriteLine($"    /// <param name=\"count\">how many items to allocate?</param>");
                             sw.WriteLine($"    /// <returns>A pointer to the instance of <see cref=\"{definitionLines[0]}\"/>.</returns>");
+                            sw.WriteLine($"    public static {definitionLines[0]}* Alloc(int count = 1) {leftBrace}");
                             {
+                                sw.WriteLine($"        if (count <= 0) {leftBrace} return null; {rightBrace}");
+                                sw.WriteLine($"        ");
                                 sw.WriteLine($"        int size = sizeof({definitionLines[0]});");
-                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size);");
-                                sw.WriteLine($"        Marshal.Copy(Vk.zeros, 0, (IntPtr)info, size);");
-                                if (definitionLines[1] != "0") {
-                                    sw.WriteLine($"        info->sType = VkStructureType.{definitionLines[1]};");
-                                }
-                                else {
-                                    sw.WriteLine($"        info->sType = 0;");
-                                }
+                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size * count);");
+                                sw.WriteLine($"        for (int i = 0; i < count; i++) {leftBrace} Marshal.Copy(Vk.zeros, 0, (IntPtr)(&(info[i])), size); { rightBrace}");
+                                string sType = definitionLines[1] != "0" ? "VkStructureType." + definitionLines[1] : "0";
+                                sw.WriteLine($"        for (int i = 0; i < count; i++) {leftBrace} info[i].sType = {sType}; {rightBrace}");
                                 sw.WriteLine();
                                 if (definitionLines[1] == "0"
                                     && (definitionLines[0] != "VkBaseInStructure")
@@ -115,11 +110,19 @@ namespace ApiSpec {
                     else {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
-                            sw.WriteLine($"    public static {definitionLines[0]}* Alloc() {leftBrace}");
+                            sw.WriteLine($"    /// <summary>");
+                            sw.WriteLine($"    /// Allocate instances of <see cref=\"{definitionLines[0]}\"/> in unmanaged memory.");
+                            sw.WriteLine($"    /// <para>No 'sType' member exists in this struct.</para>");
+                            sw.WriteLine($"    /// </summary>");
+                            sw.WriteLine($"    /// <param name=\"count\">how many items to allocate?</param>");
+                            sw.WriteLine($"    /// <returns>A pointer to the instance of <see cref=\"{definitionLines[0]}\"/>.</returns>");
+                            sw.WriteLine($"    public static {definitionLines[0]}* Alloc(int count = 1) {leftBrace}");
                             {
+                                sw.WriteLine($"        if (count <= 0) {leftBrace} return null; {rightBrace}");
+                                sw.WriteLine($"        ");
                                 sw.WriteLine($"        int size = sizeof({definitionLines[0]});");
-                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size);");
-                                sw.WriteLine($"        Marshal.Copy(Vk.zeros, 0, (IntPtr)info, size);");
+                                sw.WriteLine($"        var info = ({definitionLines[0]}*)Marshal.AllocHGlobal(size * count);");
+                                sw.WriteLine($"        for (int i = 0; i < count; i++) {leftBrace} Marshal.Copy(Vk.zeros, 0, (IntPtr)(&(info[i])), size); {rightBrace}");
                                 sw.WriteLine();
                                 sw.WriteLine($"        return info;");
                             }
@@ -133,6 +136,12 @@ namespace ApiSpec {
             Console.WriteLine("Done");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="list"></param>
+        /// <param name="inside"></param>
         private static void TraverseDefinitions(XElement node, List<StructDefinition> list, ref bool inside) {
             if (node.Name == "h4") {
                 if (node.Value == "C Specification") {

@@ -38,7 +38,7 @@ namespace ApiSpec {
             public List<string> lstComment = new List<string>();
         }
 
-        public static void DumpHandles() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<Definition>(); bool inside = false;
             TraverseDefinitions(root, lstDefinition, ref inside);
@@ -58,7 +58,7 @@ namespace ApiSpec {
                     foreach (var item in itemDescription.lstComment) {
                         string s = item.Replace("\r", "");
                         s = s.Replace("\n", "");
-                        string c = RemoveBraces(s);
+                        string c = Helper.RemoveBraces(s);
                         sw.WriteLine($"/// <para>{c}</para>");
                     }
                     sw.WriteLine($"/// </summary>");
@@ -68,36 +68,6 @@ namespace ApiSpec {
                 }
             }
             Console.WriteLine("Done");
-        }
-
-        static readonly char[] braceSeparator = new char[] { '<', '>', };
-        // remove <> </>
-        private static string RemoveBraces(string strComment) {
-            var leftBraces = new List<int>();
-            var rightBraces = new List<int>();
-            for (int i = 0; i < strComment.Length; i++) {
-                char c = strComment[i];
-                if (c == '<') { leftBraces.Add(i); }
-                else if (c == '>') { rightBraces.Add(i); }
-            }
-
-            if (leftBraces.Count != rightBraces.Count) { return strComment; }
-
-            var builder = new StringBuilder();
-            int current = 0; leftBraces.Add(strComment.Length); rightBraces.Insert(0, -1);
-            for (int i = 0; i < leftBraces.Count; i++) {
-                current = rightBraces[i] + 1;
-                int left = leftBraces[i];
-                string segment = strComment.Substring(current, left - current);
-                if (!string.IsNullOrWhiteSpace(segment)) {
-                    builder.Append(segment);
-                }
-                else {
-                    builder.Append(" ");
-                }
-            }
-
-            return builder.ToString();
         }
 
         /*<h4 id="_c_specification_327">C Specification</h4>

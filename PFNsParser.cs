@@ -61,7 +61,7 @@ namespace ApiSpec {
             }
         }
 
-        public static void DumpPFNs() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<PFNDefinition>(); bool inside = false;
             TraverseDefinitions(root, lstDefinition, ref inside);
@@ -93,7 +93,7 @@ namespace ApiSpec {
                                 strComment = strComment.Replace("\r\n", "\n");
                                 strComment = strComment.Replace("\r", "\n");
                                 strComment = strComment.Replace("\n", $"{Environment.NewLine}    /// ");
-                                strComment = RemoveBraces(strComment);
+                                strComment = Helper.RemoveBraces(strComment);
                                 sw.WriteLine($"    /// <summary>{strComment}</summary>");
                             }
                         }
@@ -129,24 +129,6 @@ namespace ApiSpec {
                 }
             }
             Console.WriteLine("Done");
-        }
-
-        static readonly char[] braceSeparator = new char[] { '<', '>', };
-        // remove <> </>
-        private static string RemoveBraces(string strComment) {
-            var builder = new StringBuilder();
-            bool inside = false;
-            foreach (var item in strComment) {
-                if (item == '<') { inside = true; }
-                else if (item == '>') { inside = false; }
-                else {
-                    if (!inside) {
-                        builder.Append(item);
-                    }
-                }
-            }
-
-            return builder.ToString();
         }
 
         /*<h4 id="_name_1040">Name</h4>

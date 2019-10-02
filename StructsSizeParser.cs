@@ -48,7 +48,7 @@ namespace ApiSpec {
             }
         }
 
-        public static void DumpStructs() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<StructDefinition>(); bool inside = false;
             TraverseDefinitions(root, lstDefinition, ref inside);

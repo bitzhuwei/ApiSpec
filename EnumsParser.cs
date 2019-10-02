@@ -50,15 +50,15 @@ namespace ApiSpec {
                         string newHead = Simplify(head, enumName);
                         if (char.IsNumber(number[0]) || number[0] == '-') {
                             if (char.IsNumber(newHead[0])) { newHead = "_" + newHead; }
-                            lines[i] = string.Format("    {0} = {1},", newHead, number);
+                            lines[i] = string.Format("    {0} = {1}, // {2}", newHead, number, lines[i]);
                         }
                         else {
                             string newNumber = Simplify(number, enumName);
                             if (char.IsNumber(newHead[0])) { newHead = "_" + newHead; }
                             if (char.IsNumber(newNumber[0])) { newNumber = "_" + newNumber; }
-                            lines[i] = string.Format("    {0}{1} = {2},",
+                            lines[i] = string.Format("    {0}{1} = {2}, // {3}",
                                 newHead == newNumber ? "// [Duplicated] " : "",
-                                newHead, newNumber);
+                                newHead, newNumber, lines[i]);
                         }
                     }
                 }
@@ -132,7 +132,7 @@ namespace ApiSpec {
             }
         }
 
-        public static void DumpEnums() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<EnumDefinetion>(); bool inside = false;
             TraverseNodesEnumDefinitions(root, lstDefinition, ref inside);
@@ -165,10 +165,14 @@ namespace ApiSpec {
                                 strComment = strComment.Replace("\r\n", "\n");
                                 strComment = strComment.Replace("\r", "\n");
                                 strComment = strComment.Replace("\n", $"{Environment.NewLine}    /// ");
+                                strComment = Helper.RemoveBraces(strComment);
                                 sw.WriteLine($"    /// <summary>{strComment}</summary>");
                             }
                         }
-                        sw.WriteLine(line);
+                        {
+                            string[] parts = line.Split("//", StringSplitOptions.RemoveEmptyEntries);
+                            sw.WriteLine(parts[0]);
+                        }
                     }
                     {
                         string line = definitionLines[definitionLines.Length - 1];
@@ -217,8 +221,8 @@ intersected.
         private static string ParseItemComment(string line, Dictionary<string, string> dict) {
             string result = string.Empty;
             string[] parts = line.Split(equalSeparator, StringSplitOptions.RemoveEmptyEntries);
-            if (parts.Length == 2) {
-                string key = parts[0];
+            if (parts.Length == 5) {
+                string key = parts[3];
                 if (dict.ContainsKey(key)) {
                     result = dict[key];
                 }

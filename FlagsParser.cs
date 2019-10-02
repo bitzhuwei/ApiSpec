@@ -42,7 +42,7 @@ namespace ApiSpec {
             }
         }
 
-        public static void DumpFlags() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<Definition>(); bool inside = false;
             TraverseDefinitions(root, lstDefinition, ref inside);

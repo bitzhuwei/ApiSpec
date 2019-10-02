@@ -7,33 +7,35 @@ namespace ApiSpec {
         static void Main(string[] args) {
             Console.WriteLine("Parsing...");
 
+            ExtensionsParser.Dump();
+
             //EnumsParser.Testh4();
             //EnumsParser.h4Counts();
-            EnumsParser.DumpEnums();
+            EnumsParser.Dump();
 
             //HandlesParser.Testh4();
             //HandlesParser.h4Counts();
-            HandlesParser.DumpHandles();
+            HandlesParser.Dump();
 
             //FlagsParser.Testh4();
             //FlagsParser.h4Counts();
-            FlagsParser.DumpFlags();
+            FlagsParser.Dump();
 
             //PFNsParser.Testh4();
             //PFNsParser.h4Counts();
-            PFNsParser.DumpPFNs();
+            PFNsParser.Dump();
 
             //StructsParser.Testh4();
             //StructsParser.h4Counts();
-            StructsParser.DumpStructs();
-            StructsMarshalParser.DumpStructs();
-            StructsSizeParser.DumpStructs();
+            StructsParser.Dump();
+            StructsMarshalParser.Dump();
+            StructsSizeParser.Dump();
 
             //CommandsParser.Testh4();
             //CommandsParser.h4Counts();
-            CommandsParser.DumpCommands();
+            CommandsParser.Dump();
 
-            Console.ReadKey();
+            //Console.ReadKey();
         }
     }
 

@@ -35,7 +35,12 @@ namespace ApiSpec {
                 {
                     //string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
                     //lines[0] = $"public {parts[0]} {parts[3].Substring(1)} {leftBrace}";
-                    lines[0] = $"public static extern {lines[0]}";
+                    if (lines[0].EndsWith("EXT(")) {
+                        lines[0] = $"public delegate {lines[0]}";
+                    }
+                    else {
+                        lines[0] = $"public static extern {lines[0]}";
+                    }
                 }
 
                 return lines;
@@ -66,7 +71,7 @@ namespace ApiSpec {
             public List<string> lstComment = new List<string>();
         }
 
-        public static void DumpCommands() {
+        public static void Dump() {
             XElement root = XElement.Load(filename);
             var lstDefinition = new List<Definition>(); bool inside = false;
             TraverseDefinitions(root, lstDefinition, ref inside);
@@ -94,7 +99,7 @@ namespace ApiSpec {
                     //foreach (var item in itemDescription.lstComment) {
                     //    string s = item.Replace("\r", "");
                     //    s = s.Replace("\n", "");
-                    //    string c = RemoveBraces(s);
+                    //    string c = Helper.RemoveBraces(s);
                     //    sw.WriteLine($"/// <para>{c}</para>");
                     //}
                     sw.WriteLine($"/// </summary>");
@@ -108,15 +113,17 @@ namespace ApiSpec {
                                 strComment = strComment.Replace("\r\n", "\n");
                                 strComment = strComment.Replace("\r", "\n");
                                 strComment = strComment.Replace("\n", $"{Environment.NewLine}    /// ");
-                                strComment = RemoveBraces(strComment);
+                                strComment = Helper.RemoveBraces(strComment);
                                 sw.WriteLine(string.Format("/// <param name=\"{0}\">{1}</param>", key, strComment));
                             }
                         }
                     }
                     {
-                        sw.WriteLine("[DllImport(VulkanLibrary, CallingConvention = CallingConvention.Winapi)]");
                         string line = definitionLines[0];
                         line = line.Trim();
+                        if (line.StartsWith("public static extern")) {
+                            sw.WriteLine("[DllImport(VulkanLibrary, CallingConvention = CallingConvention.Winapi)]");
+                        }
                         var l = line.Replace("const char* ", "IntPtr ");
                         l = l.Replace("const*", "/*-const-*/ *");
                         l = l.Replace("const ", "/*-const-*/ ");
@@ -135,7 +142,7 @@ namespace ApiSpec {
                         l = l.Replace("int32_t ", "Int32 ");
                         l = l.Replace("int64_t* ", "Int64* ");
                         l = l.Replace("int64_t ", "Int64 ");
-                        l = l.Replace("struct ", "/* struct */ ");
+                        l = l.Replace("struct ", "/*-struct-*/ ");
                         l = l.Replace(" object", " _object");
                         l = l.Replace(" event", " _event");
                         sw.WriteLine(l); // public static extern VkResult vkAcquireFullScreenExclusiveModeEXT( ...
@@ -164,42 +171,20 @@ namespace ApiSpec {
                         l = l.Replace("struct ", "/* struct */ ");
                         l = l.Replace(" object", " _object");
                         l = l.Replace(" event", " _event");
+                        l = l.Replace("Display* ", "/*Display*-*/IntPtr ");
+                        l = l.Replace("AHardwareBuffer** ", "/*AHardwareBuffer**-*/IntPtr ");
+                        l = l.Replace("AHardwareBuffer* ", "/*AHardwareBuffer*-*/IntPtr ");
+                        l = l.Replace("wl_display* ", "/*wl_display*-*/IntPtr ");
+                        l = l.Replace("xcb_connection_t* ", "/*xcb_connection_t*-*/IntPtr ");
+                        l = l.Replace("xcb_visualid_t ", "/*xcb_visualid_t*/IntPtr ");
+                        l = l.Replace("VisualID ", "/*VisualID*/IntPtr ");
+                        l = l.Replace("RROutput ", "/*RROutput*/IntPtr ");
                         l = "    " + l;
                         sw.WriteLine(l);
                     }
                 }
             }
             Console.WriteLine("Done");
-        }
-
-        static readonly char[] braceSeparator = new char[] { '<', '>', };
-        // remove <> </>
-        private static string RemoveBraces(string strComment) {
-            var leftBraces = new List<int>();
-            var rightBraces = new List<int>();
-            for (int i = 0; i < strComment.Length; i++) {
-                char c = strComment[i];
-                if (c == '<') { leftBraces.Add(i); }
-                else if (c == '>') { rightBraces.Add(i); }
-            }
-
-            if (leftBraces.Count != rightBraces.Count) { return strComment; }
-
-            var builder = new StringBuilder();
-            int current = 0; leftBraces.Add(strComment.Length); rightBraces.Insert(0, -1);
-            for (int i = 0; i < leftBraces.Count; i++) {
-                current = rightBraces[i] + 1;
-                int left = leftBraces[i];
-                string segment = strComment.Substring(current, left - current);
-                if (!string.IsNullOrWhiteSpace(segment)) {
-                    builder.Append(segment);
-                }
-                else {
-                    builder.Append(" ");
-                }
-            }
-
-            return builder.ToString();
         }
 
         /*<h4 id="_description">Description</h4>
