@@ -79,7 +79,7 @@ namespace ApiSpec {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
                             sw.WriteLine($"    /// <summary>");
-                            sw.WriteLine($"    /// Allocate instances of <see cref=\"{definitionLines[0]}\"/> in unmanaged memory.");
+                            sw.WriteLine($"    /// Allocate <paramref name=\"count\"/> instances of <see cref=\"{definitionLines[0]}\"/> in unmanaged memory.");
                             sw.WriteLine($"    /// <para>The 'sType' member is already set up.</para>");
                             sw.WriteLine($"    /// </summary>");
                             sw.WriteLine($"    /// <param name=\"count\">how many items to allocate?</param>");
@@ -111,7 +111,7 @@ namespace ApiSpec {
                         sw.WriteLine($"public unsafe partial struct {definitionLines[0]} {leftBrace}");
                         {
                             sw.WriteLine($"    /// <summary>");
-                            sw.WriteLine($"    /// Allocate instances of <see cref=\"{definitionLines[0]}\"/> in unmanaged memory.");
+                            sw.WriteLine($"    /// Allocate <paramref name=\"count\"/> instances of <see cref=\"{definitionLines[0]}\"/> in unmanaged memory.");
                             sw.WriteLine($"    /// <para>No 'sType' member exists in this struct.</para>");
                             sw.WriteLine($"    /// </summary>");
                             sw.WriteLine($"    /// <param name=\"count\">how many items to allocate?</param>");

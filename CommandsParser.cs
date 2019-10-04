@@ -36,7 +36,7 @@ namespace ApiSpec {
                     //string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
                     //lines[0] = $"public {parts[0]} {parts[3].Substring(1)} {leftBrace}";
                     if (lines[0].EndsWith("EXT(")) {
-                        lines[0] = $"public delegate {lines[0]}";
+                        lines[0] = $"private delegate {lines[0]}";
                     }
                     else {
                         lines[0] = $"public static extern {lines[0]}";
