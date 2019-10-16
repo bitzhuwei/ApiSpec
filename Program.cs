@@ -34,6 +34,8 @@ namespace ApiSpec {
             //CommandsParser.Testh4();
             //CommandsParser.h4Counts();
             CommandsParser.Dump();
+            CommandsDelegateParser.Dump();
+            CommandsGetInstanceProcAddr.Dump();
 
             //Console.ReadKey();
         }

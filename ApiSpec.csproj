@@ -10,8 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Enums.gen.cs" />
+    <Compile Remove="Commands.Delegates.gen.cs" />
+    <Compile Remove="Extensions.gen.cs" />
+    <Compile Remove="Handles.gen.cs" />
     <Compile Remove="PFNs.gen.cs" />
+    <Compile Remove="ScalarTypes.cs" />
     <Compile Remove="Structs.gen.cs" />
   </ItemGroup>
 

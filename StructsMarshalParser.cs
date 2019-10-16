@@ -83,7 +83,7 @@ namespace ApiSpec {
                             sw.WriteLine($"    /// <para>The 'sType' member is already set up.</para>");
                             sw.WriteLine($"    /// </summary>");
                             sw.WriteLine($"    /// <param name=\"count\">how many items to allocate?</param>");
-                            sw.WriteLine($"    /// <returns>A pointer to the instance of <see cref=\"{definitionLines[0]}\"/>.</returns>");
+                            sw.WriteLine($"    /// <returns>A pointer to the instances of <see cref=\"{definitionLines[0]}\"/>.</returns>");
                             sw.WriteLine($"    public static {definitionLines[0]}* Alloc(int count = 1) {leftBrace}");
                             {
                                 sw.WriteLine($"        if (count <= 0) {leftBrace} return null; {rightBrace}");
@@ -115,7 +115,7 @@ namespace ApiSpec {
                             sw.WriteLine($"    /// <para>No 'sType' member exists in this struct.</para>");
                             sw.WriteLine($"    /// </summary>");
                             sw.WriteLine($"    /// <param name=\"count\">how many items to allocate?</param>");
-                            sw.WriteLine($"    /// <returns>A pointer to the instance of <see cref=\"{definitionLines[0]}\"/>.</returns>");
+                            sw.WriteLine($"    /// <returns>A pointer to the instances of <see cref=\"{definitionLines[0]}\"/>.</returns>");
                             sw.WriteLine($"    public static {definitionLines[0]}* Alloc(int count = 1) {leftBrace}");
                             {
                                 sw.WriteLine($"        if (count <= 0) {leftBrace} return null; {rightBrace}");

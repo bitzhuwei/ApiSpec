@@ -107,6 +107,12 @@ namespace ApiSpec {
                 if (str.ToLower().EndsWith("khr")) {
                     str = str.Substring(0, str.Length - "khr".Length) + "KHR";
                 }
+                if (str.ToLower().EndsWith("ext")) {
+                    str = str.Substring(0, str.Length - "ext".Length) + "EXT";
+                }
+                if (str.ToLower().EndsWith("nv")) {
+                    str = str.Substring(0, str.Length - "nv".Length) + "NV";
+                }
 
                 return str;
             }

@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml.Linq;
 
 namespace ApiSpec {
-    class CommandsParser {
+    class CommandsGetInstanceProcAddr {
 
         static readonly char[] inLineSeparator = new char[] { ' ', '\t', '\r', '\n', '(', ')' };
         static readonly char[] lineSeparator = new char[] { '\r', '\n' };
@@ -36,7 +36,7 @@ namespace ApiSpec {
                     //string[] parts = lines[0].Split(inLineSeparator, StringSplitOptions.RemoveEmptyEntries);
                     //lines[0] = $"public {parts[0]} {parts[3].Substring(1)} {leftBrace}";
                     if (lines[0].EndsWith("EXT(")) {
-                        lines[0] = $"public delegate {lines[0]}";
+                        lines[0] = $"public static {lines[0]}";
                     }
                     else {
                         lines[0] = $"public static extern {lines[0]}";
@@ -82,8 +82,7 @@ namespace ApiSpec {
             //var lstItemDescription = new List<ItemDescription>(); inside = false;
             //TraverseDescriptions(root, lstItemDescription, ref inside);
 
-            using (var sw = new System.IO.StreamWriter("Commands.Methods.gen.cs")) {
-                sw.WriteLine("const string VulkanLibrary = \"vulkan-1\";");
+            using (var sw = new System.IO.StreamWriter("Commands.GetInstanceProcAddr.gen.cs")) {
                 for (int i = 0, t = 0; i < lstDefinition.Count; i++) {
                     Definition definition = lstDefinition[i];
                     //sw.WriteLine(definition.raw);
@@ -93,10 +92,10 @@ namespace ApiSpec {
                     //ItemDescription itemDescription = lstItemDescription[i];
                     {
                         string line = definitionLines[0];
-                        if (line.StartsWith("private delegate")) { continue; }
+                        if (line.StartsWith("public static extern")) { continue; }
 
                         sw.WriteLine($"// Command: {i}");
-                        sw.WriteLine($"// Method: {t}");
+                        sw.WriteLine($"// GetInstanceProcAddr: {t}");
                         t++;
                     }
                     string comment = lstComment[i];
@@ -151,10 +150,16 @@ namespace ApiSpec {
                         l = l.Replace("struct ", "/*-struct-*/ ");
                         l = l.Replace(" object", " _object");
                         l = l.Replace(" event", " _event");
+                        l = l.Replace(" vk", " ");
                         sw.WriteLine(l); // public static extern VkResult vkAcquireFullScreenExclusiveModeEXT( ...
+                    }
+                    {
+                        sw.WriteLine("    this VkInstance instance,");
                     }
                     for (int j = 1; j < definitionLines.Length; j++) {
                         string line = definitionLines[j];
+                        if (line.Contains("VkInstance")) { continue; }
+
                         line = line.Trim();
                         var l = line.Replace("const char* ", "IntPtr ");
                         l = l.Replace("const*", "/*-const-*/ *");
@@ -185,9 +190,52 @@ namespace ApiSpec {
                         l = l.Replace("xcb_visualid_t ", "/*xcb_visualid_t*/IntPtr ");
                         l = l.Replace("VisualID ", "/*VisualID*/IntPtr ");
                         l = l.Replace("RROutput ", "/*RROutput*/IntPtr ");
+                        if (j == definitionLines.Length - 1) { l = l.Replace(";", " {"); }
                         l = "    " + l;
                         sw.WriteLine(l);
                     }
+                    string funcName = string.Empty; string returnType = string.Empty;
+                    {
+                        char[] chars = new char[] { ',', '(', ')', ';', ' ' };
+                        string[] parts = definitionLines[0].Split(chars, StringSplitOptions.RemoveEmptyEntries);
+                        returnType = parts[2]; funcName = parts[3];
+                    }
+                    string leftBigBrace = "{", rightBigBrace = "}";
+                    {
+                        //IntPtr procHandle = vkAPI.vkGetInstanceProcAddr(instance, "vkCreateDebugReportCallbackEXT");
+                        sw.WriteLine($"IntPtr addr = vkAPI.vkGetInstanceProcAddr(instance, \"{funcName}\");");
+                        //delCreateDebugReportCallbackEXT = (vkCreateDebugReportCallbackEXT)Marshal.GetDelegateForFunctionPointer(procHandle, typeof(vkCreateDebugReportCallbackEXT));
+                        sw.WriteLine($"var func = ({funcName})Marshal.GetDelegateForFunctionPointer(addr, typeof({funcName}));");
+                        sw.WriteLine();
+                        sw.WriteLine($"if (func != null) {leftBigBrace}");
+                        string starter = (returnType != "void") ? "return " : "";
+                        sw.Write($"{starter}func(");
+                        char[] chars = new char[] { ',', '(', ')', ';', ' ' };
+                        for (int j = 1; j < definitionLines.Length; j++) {
+                            string[] parts = definitionLines[j].Trim().Split(chars, StringSplitOptions.RemoveEmptyEntries);
+                            string paramName = parts[parts.Length - 1];
+                            paramName = paramName.Replace("object", "_object");
+                            paramName = paramName.Replace("event", "_event");
+                            sw.Write(paramName);
+                            if (j != definitionLines.Length - 1) { sw.Write(", "); }
+                        }
+                        sw.WriteLine($");");
+                        sw.WriteLine($"{rightBigBrace}");
+                        if (returnType == "VkResult") {
+                            sw.WriteLine($"else {leftBigBrace}");
+                            sw.WriteLine($"return VkResult.ErrorExtensionNotPresent;");
+                            sw.WriteLine($"{rightBigBrace}");
+                        }
+                        else if (returnType == "VkDeviceAddress") {
+                            sw.WriteLine($"else {leftBigBrace}");
+                            sw.WriteLine($"return 0;");
+                            sw.WriteLine($"{rightBigBrace}");
+                        }
+                    }
+                    sw.WriteLine("}");
+                    //private static vkCreateDebugReportCallbackEXT delCreateDebugReportCallbackEXT;
+                    //sw.WriteLine($"private static {funcName} del{funcName};");
+                    sw.WriteLine();
                 }
             }
             Console.WriteLine("Done");

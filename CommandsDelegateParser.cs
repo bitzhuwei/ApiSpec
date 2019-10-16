@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml.Linq;
 
 namespace ApiSpec {
-    class CommandsParser {
+    class CommandsDelegateParser {
 
         static readonly char[] inLineSeparator = new char[] { ' ', '\t', '\r', '\n', '(', ')' };
         static readonly char[] lineSeparator = new char[] { '\r', '\n' };
@@ -82,7 +82,7 @@ namespace ApiSpec {
             //var lstItemDescription = new List<ItemDescription>(); inside = false;
             //TraverseDescriptions(root, lstItemDescription, ref inside);
 
-            using (var sw = new System.IO.StreamWriter("Commands.Methods.gen.cs")) {
+            using (var sw = new System.IO.StreamWriter("Commands.Delegates.gen.cs")) {
                 sw.WriteLine("const string VulkanLibrary = \"vulkan-1\";");
                 for (int i = 0, t = 0; i < lstDefinition.Count; i++) {
                     Definition definition = lstDefinition[i];
@@ -93,10 +93,10 @@ namespace ApiSpec {
                     //ItemDescription itemDescription = lstItemDescription[i];
                     {
                         string line = definitionLines[0];
-                        if (line.StartsWith("private delegate")) { continue; }
+                        if (line.StartsWith("public static extern")) { continue; }
 
                         sw.WriteLine($"// Command: {i}");
-                        sw.WriteLine($"// Method: {t}");
+                        sw.WriteLine($"// Delegate: {t}");
                         t++;
                     }
                     string comment = lstComment[i];
